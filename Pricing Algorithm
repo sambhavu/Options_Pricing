@@ -1,0 +1,99 @@
+#include<iostream>
+#include<fstream>
+#include<cctype>
+#include<iomanip>
+#include <cstdlib>
+#include <cmath>
+#include <ctime>
+#include <algorithm>
+
+using namespace std;
+
+class algorithm{
+
+public:
+    double maturity =1;
+    double strike = 190;
+    double spot = 100;
+    double sigma = .1;
+    double interest = .05;
+    int steps = 1;
+    int simulations = 1;
+    double S[0];
+    double sumpayoff = 0;
+    double premium = 0;
+    double dt = maturity/steps;
+    string name;
+    double deposit=0, capital=0, investment = 0, fee = 0;
+    double lambda;
+
+
+    double loop(double x){
+        double epsilon = x;
+        for(int j=0; j<simulations; j++){
+            S[0] = spot;
+            for(int i = 0; i<steps; i++){
+                S[i+1] = S[i]*(1+interest*dt+sigma*sqrt(dt)*epsilon);
+            }
+            sumpayoff +=max(S[steps]-strike, 0.0);
+        }
+        premium = exp(-interest*maturity)*(sumpayoff/simulations);
+        return premium;
+        }
+
+    void intro(){
+        cout<<"Enter Name: ";
+        getline(cin, name);
+        cout<<"Capital Deposit(Millions): ";
+        cin>>deposit;
+        deposit = deposit*1000000.00;
+        capital = deposit + capital;
+        fee = .01*deposit;
+        investment = deposit - fee;
+    }
+
+
+
+    double uniformRandom(){return ( (double)(rand()) + 1. )/( (double)(RAND_MAX) + 1. );}
+
+    double normalRandom(){
+        double u1=uniformRandom();
+        double u2=uniformRandom();
+        return cos(8.*atan(1.)*u2)*sqrt(-2.*log(u1));
+    }
+
+    double getrand(){
+        double epsilon;
+        epsilon = normalRandom();
+        lambda = loop(epsilon);
+        return lambda;
+    }
+
+    void display(){
+        cout<<"\n\n";
+        cout<<"\nInvestment: "<<investment;
+        cout<<"****Assumptions**** \n";
+        cout<<"Underlying Spot:  $100\n";
+        cout<<"Strike Price: $100\n";
+        cout<<"Implied Volatility = 10%";
+        cout<<"Interest Rate = 5%  \n";
+        cout<<"Management Fee = 1% \n";
+    }
+};
+
+
+int main()
+{
+    double premium;
+    algorithm client;
+    client.name = "my name";
+    algorithm option;
+
+    premium = option.getrand();
+
+    client.intro();
+    cout<<"\n Premium: ";
+    cout<<premium;
+    option.display();
+    return 0;
+}
