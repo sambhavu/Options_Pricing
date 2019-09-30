@@ -1,0 +1,14 @@
+vector< vector<double> > binomial_tree( double S0,
+                                        double u,
+                                        double d,
+                                        int no_steps){
+    vector<vector<double>>tree;
+    for(int i = 1; i<=no_steps;++1){
+        vector<double> S(i);
+        for(int j = 0;j<i;++j){
+            S[j] = S0*pow(u,j)*pow(d,i-j-1);
+        };
+        tree.push_back(S);
+    }
+    return tree;
+                                        };
