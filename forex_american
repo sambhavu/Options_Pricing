@@ -16,18 +16,12 @@ class option{
     double r_f;
     double sigma; 
     double time; 
-    int steps; 
-    
-    double delta;
-    double gamma;
-    double theta;
-    double vega;
-    double rho;
-    
+    int steps;  
     
     option(); 
     
     double cnd(double x);
+    double normdist(double x);
     
     double price(        
                             double S,
@@ -41,7 +35,6 @@ class option{
                             double r,
                             double sigma,
                             double time,
-                            
                             double delta,
                             double gamma,
                             double theta,
@@ -56,6 +49,8 @@ class option{
                             double sigma,
                             double time, 
                             int steps);
+                            
+ 
 };
 
 option :: option(){
@@ -65,9 +60,25 @@ option :: option(){
  r_f = 0.05;
  sigma = .2;
  time = .5;
+ 
  steps =100;
  
 }
+
+double option:: normdist(double x)
+{
+    double num = 0;
+    double w1 = 0;
+    double w2 = 0;
+    
+    w1 = (1/sqrt(2*Pi));
+    w2 = exp(-.5*x*x);
+    
+    num = w1*w2; 
+    
+    return num;
+}
+
     
 double option:: cnd(double x)
 {
@@ -112,7 +123,6 @@ void option :: greeks(
                         double r, 
                         double sigma,
                         double time,
-                        
                         double delta, 
                         double gamma, 
                         double theta,
@@ -124,10 +134,17 @@ void option :: greeks(
         double d1 = ((log(S/K)+r*time)/(sigma*time_sqrt)) + 0.5*sigma*time_sqrt;
         double d2 = d1-(sigma*time_sqrt);
         delta = cnd(d1);
-        gamma = cnd(d1)/(S*sigma*time_sqrt);
-        theta = -(S*sigma*cnd(d1))/(2*time_sqrt) - r*K*exp(-r*time)*cnd(d2);
-        vega = S*time_sqrt*cnd(d1);
+        gamma = normdist(d1)/(S*sigma*time_sqrt);
+        theta =- (S*sigma*normdist(d1))/(2*time_sqrt) - r*K*exp(-r*time)*cnd(d2);
+        vega = S*time_sqrt*normdist(d1);
         rho = K*time*exp(-r*time)*cnd(d2);
+        
+        
+        cout<<delta<<"\n";
+        cout<<gamma<<"\n";
+        cout<<theta<<"\n";
+        cout<<vega<<"\n";
+        cout<<rho<<"\n";
     }
     
 double option :: currency_option( 
@@ -154,12 +171,14 @@ double option :: currency_option(
         int i;
         for(i = 1;i<=steps;++i){
             exchange_rates[i] = uu*exchange_rates[i-1];         //terminal tree nodes
-        };
+        }
         for(i=0;i<=steps;++i) call_values[i]=max(0.0,(exchange_rates[i]-K));
         for(int step = steps-1;step>=0;--step){
-            exchange_rates[i] = d*exchange_rates[i+1];
-            call_values[i] = (pDown*call_values[i] + pUp*call_values[i+1])*Rinv;
-            call_values[i] = max(call_values[i], exchange_rates[i]-K);
+            for(i=0;i<=step;++i){
+                exchange_rates[i] = d*exchange_rates[i+1];
+                call_values[i] = (pDown*call_values[i] + pUp*call_values[i+1])*Rinv;
+                call_values[i] = max(call_values[i], exchange_rates[i]-K);
+            };
         };
     return call_values[0];
 };
@@ -169,23 +188,27 @@ double option :: currency_option(
 int main()
 {
     option call;
-    /*
+    
+    double delta;
+    double gamma;
+    double theta;
+    double vega;
+    double rho;
+    
     double price = 0;
     price = call.price(call.S,call.K,call.r,call.sigma,call.time);
     
     call.greeks(call.S,call.K,call.r,call.sigma,call.time,
-                        call.delta,call.gamma,call.theta,call.vega,call.rho);
+                        delta,gamma,theta,vega,rho);
                         
                         
     
     cout<<price<<"\n";
-    cout<<call.delta<<"\n";
-    cout<<call.gamma<<"\n";
-    cout<<call.theta<<"\n";
-    cout<<call.vega<<"\n";
-    cout<<call.rho<<"\n";
-    */
     
+    
+    
+    
+    cout<<"currency option price";
     double fx_option_price;
     
     fx_option_price = call.currency_option(call.S,call.K,call.r,call.r_f,call.sigma,call.time,call.steps);
