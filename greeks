@@ -49,14 +49,16 @@ class option{
                             double sigma,
                             double time, 
                             int steps);
+                            
+ 
 };
 
 option :: option(){
  S =    50;
- K = 50;
- r = .1;
+ K = 52;
+ r = .08;
  r_f = 0.05;
- sigma = .3;
+ sigma = .2;
  time = .5;
  
  steps =100;
@@ -169,12 +171,14 @@ double option :: currency_option(
         int i;
         for(i = 1;i<=steps;++i){
             exchange_rates[i] = uu*exchange_rates[i-1];         //terminal tree nodes
-        };
+        }
         for(i=0;i<=steps;++i) call_values[i]=max(0.0,(exchange_rates[i]-K));
         for(int step = steps-1;step>=0;--step){
-            exchange_rates[i] = d*exchange_rates[i+1];
-            call_values[i] = (pDown*call_values[i] + pUp*call_values[i+1])*Rinv;
-            call_values[i] = max(call_values[i], exchange_rates[i]-K);
+            for(i=0;i<=step;++i){
+                exchange_rates[i] = d*exchange_rates[i+1];
+                call_values[i] = (pDown*call_values[i] + pUp*call_values[i+1])*Rinv;
+                call_values[i] = max(call_values[i], exchange_rates[i]-K);
+            };
         };
     return call_values[0];
 };
@@ -203,14 +207,14 @@ int main()
     
     
     
-    /*
     
+    cout<<"currency option price";
     double fx_option_price;
     
     fx_option_price = call.currency_option(call.S,call.K,call.r,call.r_f,call.sigma,call.time,call.steps);
     
     cout<<fx_option_price;
-    */
+    
     
     
     
