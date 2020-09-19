@@ -3,6 +3,7 @@
 #include<iostream>
 #include<vector>
 #include <conio.h>
+#include<ctime> 
 using namespace std;
 
 #ifndef Pi 
